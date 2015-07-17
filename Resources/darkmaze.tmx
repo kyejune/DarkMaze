@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="10" height="16" tilewidth="46" tileheight="46" nextobjectid="130">
+ <tileset firstgid="1" name="tmw_desert_spacing" tilewidth="32" tileheight="32" spacing="1" margin="1">
+  <image source="tmw_desert_spacing.png" width="265" height="199"/>
+ </tileset>
+ <layer name="bg" width="10" height="16" opacity="0">
+  <data encoding="base64" compression="zlib">
+   eJyTY2BgkBvFZGORQeCGoYwBjNkStw==
+  </data>
+ </layer>
+ <objectgroup name="linewall">
+  <object id="125" x="415" y="737">
+   <polyline points="0,0 1,-689 -92,-689 -94,-371 -228,-370 -228,-553 -276,-553 -276,-507 -370,-506 -370,-457 -276,-460 -276,-371 -413,-372"/>
+  </object>
+  <object id="126" x="0" y="416">
+   <polyline points="0,0 323,-1 322,319"/>
+  </object>
+  <object id="127" x="370" y="556">
+   <polyline points="0,0 -2,180"/>
+  </object>
+  <object id="128" x="368" y="505">
+   <polyline points="0,0 1,-414"/>
+  </object>
+ </objectgroup>
+ <objectgroup name="sound">
+  <object id="115" x="380" y="684" width="20" height="20">
+   <properties>
+    <property name="source" value="1.mp3"/>
+   </properties>
+   <ellipse/>
+  </object>
+  <object id="116" x="335" y="132" width="20" height="20">
+   <properties>
+    <property name="source" value="2.mp3"/>
+   </properties>
+   <ellipse/>
+  </object>
+  <object id="117" x="14" y="365" width="16" height="16">
+   <properties>
+    <property name="source" value="3.m4a"/>
+   </properties>
+   <ellipse/>
+  </object>
+ </objectgroup>
+</map>
