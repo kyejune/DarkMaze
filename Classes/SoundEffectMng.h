@@ -13,17 +13,22 @@
 #include "AAEWrapper.h"
 #include "DebugMap.h"
 #include "SoundBlock.h"
+#include "cocos2d.h"
+#include "cocos-ext.h"
 
 USING_NS_CC;
+USING_NS_CC_EXT;
 
-class SoundEffectMng: public cocos2d::Node{
+
+class SoundEffectMng: public cocos2d::Node, public ActionTweenDelegate
+{
   
 public:
     SoundEffectMng(){};
     ~SoundEffectMng(){};
     CREATE_FUNC(SoundEffectMng);
     virtual bool init();
-    
+    virtual void updateTweenAction(float value, const std::string& key);
     
     void setEffectsInfomation( TMXObjectGroup* sound, DebugMap* map, Size stepSize );
     void updateEffectsSetting( Vec2 userPos, int userAng );

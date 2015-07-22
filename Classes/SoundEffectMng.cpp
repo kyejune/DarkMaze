@@ -41,8 +41,7 @@ void SoundEffectMng::setEffectsInfomation( TMXObjectGroup* sound, DebugMap* map,
         this->pos.push_back( Vec2( xx, yy ) );
         
         
-        
-        int idx = aae->addSound( path, ss[1] );
+        aae->addSound( path, ss[1] );
         
         //
         SoundBlock* sb = SoundBlock::create();
@@ -80,7 +79,8 @@ void SoundEffectMng::updateEffectsSetting( Vec2 userPosition, int userAngle ){
         
 //        dis->
         blocks[i]->setDistanceLabel( std::to_string( dis ) );
-        CCLOG("(%d)의 거리는 %d 이므로, 볼륨을 %f로 설정", i, dis, vol );
+//        CCLOG("(%d)의 거리는 %d 이므로, 볼륨을 %f로 설정", i, dis, vol );
+//        this->runAction( ActionTween::create( 0.8f, "vol", aae->getVol(i), vol ) );
         aae->setVol( i, vol );
 //        CCLOG("(%d)와 유저와의 거리는 %d", i, dis );
     }
@@ -91,7 +91,7 @@ void SoundEffectMng::updateEffectsSetting( Vec2 userPosition, int userAngle ){
 // 각도에 따른 pan조절
 void SoundEffectMng::updateEffectsSetting( int userAng ){
     
-        CCLOG("updateEffectsSetting by angle %d   %lu  len:%d", userAng, this->pos.size(), this->len );
+//        CCLOG("updateEffectsSetting by angle %d   %lu  len:%d", userAng, this->pos.size(), this->len );
     
     
     float ang;
@@ -112,13 +112,33 @@ void SoundEffectMng::updateEffectsSetting( int userAng ){
         
         blocks[i]->setPanLabel( std::to_string( int(pan) ) );
         CCLOG( "(%d)의 유저와의 각도%dx%d ~ %dx%d 는 %f => pan:%f", i, int(userPos.x), int(userPos.y), int(pos[i].x), int(pos[i].y), ang, pan );
-        aae->setPan( i, pan );
+        
+//        CCLOG("runAction %f에서 %f까지 0.8초동안 이동", aae->getPan(i), pan );
+        
+        std::string pstr = "pan:";
+        pstr.append( std::to_string(i) );
+        
+        this->runAction( ActionTween::create( 0.8f, pstr, aae->getPan(i), pan ) );
+        
+//        aae->setPan( i, pan );
     }
 }
 
 
 
-std::vector<std::string> SoundEffectMng::split(std::string& text, std::string separators )
+
+void SoundEffectMng::updateTweenAction(float value, const std::string &key)
+{
+    auto str = std::string( key );
+    std::vector<std::string> keyValue = split( str, ":" );
+    auto keystr = keyValue[0];
+    auto keyIdx = std::stoi( keyValue[1] );
+    
+    if( keystr == "pan") aae->setPan( keyIdx, value );
+}
+
+
+std::vector<std::string> SoundEffectMng::split(std::string &text, std::string separators )
 {
     size_t n = text.length();
     size_t start, stop;

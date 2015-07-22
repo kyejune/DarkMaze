@@ -14,7 +14,7 @@
 #include "cocos2d.h"
 USING_NS_CC;
 
-class AAEWrapper: public Ref
+class AAEWrapper: public Node
 {
 public:
     AAEWrapper(){};
@@ -26,11 +26,16 @@ public:
     int addSound( std::string filePath, std::string extention );
     
     void setPan( int idx, float pan );
+    float getPan( int idx );
+    
     // user위치값 입력받아서 사운드 위치랑 비교해서 gain, pan, volume조절
     void setVol( int idx, float vol );
+    float getVol( int idx );
     
     // 문열림 닫힘 상태에 따라 해당 사운드 필터 on/off
     void reverbTo( int index, bool on );
+    
+//    CC_SYNTHESIZE( float, panValue, Pan );
     
     
 private:

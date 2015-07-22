@@ -142,11 +142,17 @@ int AAEWrapper::addSound( std::string filePath, std::string extention ){
     return int( [[[AEAudioControllerWrapper CONTROLLER] channels ] count ] );
 }
 
+float AAEWrapper::getVol( int idx ){
+    return [[[AEAudioControllerWrapper CONTROLLER] channels][idx] volume ];
+}
 void AAEWrapper::setVol( int idx, float vol ){
 //    CCLOG("유저 위치에 맞춰서 조절" );
     [[[AEAudioControllerWrapper CONTROLLER] channels][idx] setVolume:vol];
 }
 
+float AAEWrapper::getPan( int idx ){
+    return [[[AEAudioControllerWrapper CONTROLLER] channels][idx] pan ];
+}
 void AAEWrapper::setPan( int idx, float pan ){
     [[[AEAudioControllerWrapper CONTROLLER] channels][idx] setPan:pan];
 }

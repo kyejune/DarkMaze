@@ -1,5 +1,6 @@
 #include "MainScene.h"
 
+
 USING_NS_CC; //== using namespace cocos2d;
 
 // on "init" you need to initialize your instance
@@ -27,7 +28,7 @@ bool MainScene::init()
     dmap = DebugMap::create();
     sMng = SoundEffectMng::create();
     sMng->retain();
-    
+    this->addChild( sMng, 0 ); // Action사용 위해서 화면에 붙임
     
     
     // 유저 생성
@@ -70,6 +71,8 @@ bool MainScene::init()
     
     fixUserAtCenter();
     this->scheduleUpdate();
+    
+    isMoving = false;
     
     return true;
 }
@@ -177,6 +180,8 @@ void MainScene::update(float dt)
 
 
 void MainScene::setLineOfSight( D::Direction direction ){
+    if( isMoving ) return;
+    
     switch ( direction ) {
         case D::RIGHT:
             nextRot = gameLayer->getRotation() + 90;
@@ -191,9 +196,9 @@ void MainScene::setLineOfSight( D::Direction direction ){
     }
     
     gameLayer->runAction(RotateTo::create( 0.5, nextRot ) );
-    ud->runAction(RotateTo::create( 0.5, -nextRot ));
-//    ud->runAction( Sequence::create( RotateTo::create( 0.5, -nextRot ),
-//                                     CallFunc::create( CC_CALLBACK_0( MainScene::doneMoving, this )), NULL ));
+//    ud->runAction(RotateTo::create( 0.5, -nextRot ));
+    ud->runAction( Sequence::create( RotateTo::create( 0.5, -nextRot ),
+                                     CallFunc::create( CC_CALLBACK_0( MainScene::doneMoving, this )), NULL ));
     
     
     sMng->updateEffectsSetting( -nextRot );
@@ -201,7 +206,7 @@ void MainScene::setLineOfSight( D::Direction direction ){
 }
 
 void MainScene::setCoord( Vec2 targetCoord, bool nonAnimation, bool ignoreRule ){
-    
+    if( isMoving ) return;
     CCLOG( "setCoord %f, %f", targetCoord.x, targetCoord.y  );
     
     if( ignoreRule == false ){
@@ -225,12 +230,19 @@ void MainScene::setCoord( Vec2 targetCoord, bool nonAnimation, bool ignoreRule )
     currentCord.x = targetCoord.x;
     currentCord.y = targetCoord.y;
   
-    if( nonAnimation ) ud->setPosition( nextPos );
-    else               ud->runAction( MoveTo::create( 0.5, nextPos ) );
-    
-//    CCLOG("User Position %fx%f", nextPos.x, nextPos.y );
+    if( nonAnimation )
+    {
+        ud->setPosition( nextPos );
+    }
+    else{
+        ud->runAction( Sequence::create( MoveTo::create( 0.5, nextPos ),
+                                        CallFunc::create( CC_CALLBACK_0( MainScene::doneMoving, this )), NULL ));
+        
+    }
     
     sMng->updateEffectsSetting( targetCoord, ud->getRotation() );
+    
+    isMoving = true;
 }
 
 
@@ -243,13 +255,9 @@ void MainScene::fixUserAtCenter(){
     gameLayer->setPosition( center-offset );
 }
 
-//void MainScene::doneMoving(){
-//    CCLOG( "----------------------- done moving? = %d", ud->numberOfRunningActions() );
-//    if( ud->numberOfRunningActions() == 0 ){
-//        CCLOG("<<-      Done Moving       ->>" );
-//        isMoving = false;
-//    }
-//}
+void MainScene::doneMoving(){
+    isMoving = false;
+}
 
 
 Vec2 MainScene::rotatePoint( Vec2 anchor, Vec2 point, float angle ){
