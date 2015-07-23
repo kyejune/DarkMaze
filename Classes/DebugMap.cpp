@@ -104,34 +104,53 @@ D::Load DebugMap::checkLoad( Vec2 begin, Vec2 target ){
 
 int DebugMap::getFastDistance( int startCoordX, int startCoordY, int endCoordX, int endCoordY ){
     CCLOG("<<<<<<<<<<<< getFastDistance %dx%d ~ %dx%d", startCoordX, startCoordY, endCoordX, endCoordY );
-    
+    std::vector<Vec2> route;
     start.setPoint( startCoordX, startCoordY );
     goal.setPoint( endCoordX, endCoordY );
     
     // 클리어
     closedCoords.clear();
-    if ( start.equals(goal) ) return 0;
+    if ( start.equals(goal) ){
+        route.push_back( start );
+        route.push_back( goal );
+        getLastSoundSourcePos( route );
+        return 0;
+    }
     
     
     // 탐색 시작
     // 맨처음 출발지가 여러개라면 모두 출발해보고 제일 짧은걸로 선택
-    int minDistance = 999;
+    int minDistance = INT_MAX;
     std::vector<Vec2> startingPoints = getOpenTiles( start );
-//    CCLOG("진입가능한 길이 %lu개", startingPoints.size() );
     
     for( int i=0; i<startingPoints.size(); i++ ){
-        Vec2 nextStart = startingPoints[i];
-        if( nextStart.equals( goal )) return 1;
+        route.clear();
+        route.push_back( start );
         
+        // 한칸짜리 이동
+        Vec2 nextStart = startingPoints[i];
+        if( nextStart.equals( goal )){
+            route.push_back( goal );
+            getLastSoundSourcePos( route );
+            
+            return 1;
+        }
         
         closedCoords.push_back( start );
         parentMap[coordToIndex(nextStart)] = coordToIndex( start );
         
-        if( findNext( nextStart ) ){
-//            CCLOG("(%d)번길 검색 시작 %dx%d", i, int(nextStart.x), int(nextStart.y) );
+        
+        // 한칸 이상이면..
+        if( findNext( nextStart, &route ) ){
             int dis = accumulateDistance( coordToIndex(goal), 0, nextStart );
+            if( dis < minDistance ){
+                minDistance = dis;
+                
+                route.push_back( goal );
+                getLastSoundSourcePos( route );
+            }
 //            CCLOG("(%d)번 길로 출발하면 %d걸림", i, dis );
-            minDistance = MIN( minDistance, dis );
+//            minDistance = MIN( minDistance, dis );
         }
         
         closedCoords.clear();
@@ -139,64 +158,38 @@ int DebugMap::getFastDistance( int startCoordX, int startCoordY, int endCoordX, 
     }
 
     
-    if( minDistance == 999 ) return -1;
-    else                     return minDistance;
+    if( minDistance == INT_MAX ) return -1;
+    else                         return minDistance;
     
-
-//    if( findNext( start ) ){
-//        int dis = accumulateDistance( coordToIndex(startingPoints[0]), 0 );
-//        //        CCLOG( "길찾았응 %d", dis );
-//        return dis;
-//    }else{
-//        //        CCLOG( "못찾겠어" );
-//        return -1;
-//    }
-    
-    return 0;
 }
 
-
-
-//int DebugMap::getFastDistance( int startCoordX, int startCoordY, int endCoordX, int endCoordY ){
-//    CCLOG("<<<<<<<<<<<< getFastDistance %dx%d ~ %dx%d", startCoordX, startCoordY, endCoordX, endCoordY );
-////
-////    CCLOG("Test %f", start.x );
-////    
-////    if( start == nullptr ) CCLOG("널값");
-////    else                   CCLOG("널값아녀");
-//    
-//    start.setPoint( startCoordX, startCoordY );
-//    goal.setPoint( endCoordX, endCoordY );
-//    
-//    // 클리어
-//    closedCoords.clear();
-//    if ( start.equals(goal)) return 0;
-//    
-//    
-//    // 탐색 시작
-//    // 맨처음 출발지가 여러개라면 모두 출발해보고 제일 짧은걸로 선택
-//    
-//    if( findNext( start ) ){
-//        int dis = accumulateDistance( coordToIndex(goal), -1 );
-////        CCLOG( "길찾았응 %d", dis );
-//        return dis;
-//    }else{
-////        CCLOG( "못찾겠어" );
-//        return -1;
-//    }
-//    
-//    return 0;
-//}
 
 int DebugMap::accumulateDistance( int mapIndex, int accumulatedDistance, Vec2 startingPoint ){
     if( mapIndex == coordToIndex( startingPoint )) return accumulatedDistance + 1;
     else                                           return accumulateDistance( parentMap[mapIndex], accumulatedDistance +1, startingPoint );
 }
 
+// route에 저장된 경로를 토대로 각 사운드 시작점, 코너, 도착점에 대한 좌표를 추출, getFastDistance를 호출할때마다 새로 계산됨
+// 이것도 저장해두고 같은걸 물어볼때는 꺼내오면 될듯??
+void DebugMap::getLastSoundSourcePos( std::vector<Vec2> route ){
+    std::vector<Vec2> r;
+    
+    long len = route.size();
+    if( len >= 3 ){ // 최저한으로 코너가 생길수 있는 길이
+        for( int i=1; i<len-1; i++ ){
+            Vec2 prev = route[i-1];
+            Vec2 next = route[i+1];
+            
+            float ang = atan2( prev.y - next.y, prev.x - next.x ) * 180 / 3.14159265;
+            if( std::abs(ang) != 90 && std::abs(ang) != 180 && ang != 0 ) r.push_back( route[i] );
+        }
+    }
+    
+    lastSoundPos = r;
+}
+
 std::vector<Vec2> DebugMap::getOpenTiles( Vec2 coord ){
     std::vector<Vec2> result;
-//    CCLOG("----getOpenTiles %dx%f", int( coord.x ), int( coord.y ) );
-    // 검색결과 저장 및 재검색때 사용하는 코드 추가
     
     // 중심을 기준으로 4방향중 이동가능한 타일 좌표를 추출
     Vec2 t = Vec2( coord.x, coord.y+1 );
@@ -206,22 +199,18 @@ std::vector<Vec2> DebugMap::getOpenTiles( Vec2 coord ){
     
     if( !isMarkedCoord( t ) &&  checkLoad( coord, t ) == D::PASS ){
        result.push_back( t );
-//      if( closedCoords.size() <= 1 )    CCLOG("    T 추가" );
     }
     if( !isMarkedCoord( r ) &&  checkLoad( coord, r ) == D::PASS ){
        result.push_back( r );
-//        if( closedCoords.size() <= 1 ) CCLOG("    R 추가" );
     }
     if( !isMarkedCoord( b ) &&  checkLoad( coord, b ) == D::PASS ){
         result.push_back( b );
-//      if( closedCoords.size() <= 1 )  CCLOG("    B 추가" );
     }
     if( !isMarkedCoord( l ) &&  checkLoad( coord, l ) == D::PASS ){
         result.push_back( l );
-//      if( closedCoords.size() <= 1 )  CCLOG("    L 추가" );
     }
     
-    // 벽 무시하고 가까워보이는 순으로 정렬
+    // 직선거리가 가까워보이는 순으로 정렬
     std::sort(result.begin(), result.end(), CC_CALLBACK_2( DebugMap::compareDistance, this ));
     
 //    CCLOG("그래서 진입가능한 루트는 총 %d곳", int( result.size()) );
@@ -241,15 +230,15 @@ bool DebugMap::compareDistance( Vec2 a, Vec2 b ){ // true면 a가 앞으로, fal
 }
 
 //
-bool DebugMap::findNext( Vec2 coord ){
+bool DebugMap::findNext( Vec2 coord, std::vector<Vec2>* route ){
     closedCoords.push_back( coord );
+    route->push_back( coord );
     // 진행가능한 좌표 추출
     std::vector<Vec2> nextEntries = getOpenTiles( coord );
     
     if( nextEntries.size() == 0 ){
         return false;
     }
-    
     
     
     for( int i=0; i<nextEntries.size(); i++ ){
@@ -264,7 +253,7 @@ bool DebugMap::findNext( Vec2 coord ){
         }
         else // 아니면 계속 검색
         {
-            if( findNext( n ) ) return true;
+            if( findNext( n, route ) ) return true;
         }
     }
     
@@ -277,13 +266,6 @@ int DebugMap::coordToIndex( Vec2 coord ){
     return coord.x + coord.y*tilesLen.width;
 }
 
-//Vec2 DebugMap::posToCoord( Vec2 position ){ return posToCoord( position.x, position.y ); }
-//Vec2 DebugMap::posToCoord( int x, int y ){
-//    return Vec2(  );
-//}
-
-
-
 
 // 외길일때는 문제 없는데 아니면 course 번호별로 검색하는 루틴 추가
 bool DebugMap::isMarkedCoord( Vec2 coord ){
@@ -292,10 +274,5 @@ bool DebugMap::isMarkedCoord( Vec2 coord ){
             return true;
         }
     }
-    
-//    for( int j=0; j<historyStartingPoinsById.size(); j++ ){
-//        if( historyStartingPoinsById[j])
-//    }
-    
     return false;
 }

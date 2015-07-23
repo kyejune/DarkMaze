@@ -41,6 +41,8 @@ private:
     std::vector<SoundBlock*> blocks;
     std::vector<Vec2> pos;
     
+    std::vector<std::vector<Vec2>> sndSrcPos;
+    
     Vec2 userPos;
     
     int len = 0;

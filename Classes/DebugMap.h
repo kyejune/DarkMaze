@@ -32,6 +32,8 @@ public:
     Size tilesLen;
     Size tilesSize;
     
+    std::vector<Vec2> lastSoundPos;
+    
 //    Vec2 posToCoord( Vec2 position );
 //    Vec2 posToCoord( int x, int y );
     
@@ -45,11 +47,14 @@ private:
     std::vector<Vec2> closedCoords;
     
     std::vector<Vec2> getOpenTiles( Vec2 coord );
-    bool findNext( Vec2 coord );
+    bool findNext( Vec2 coord, std::vector<Vec2>* route );
     bool isMarkedCoord( Vec2 coord );
     bool compareDistance( Vec2 a, Vec2 b );
     
-    int accumulateDistance( int mapIndex, int accumulatedDistance,  Vec2 startingPoint);
+//    std::vector<Vec2> lastSoundPos;
+    void getLastSoundSourcePos( std::vector<Vec2> route );
+    
+    int accumulateDistance( int mapIndex, int accumulatedDistance,  Vec2 startingPoint );
     int coordToIndex( Vec2 coord );
 };
 

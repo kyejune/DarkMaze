@@ -64,25 +64,27 @@ void SoundEffectMng::updateEffectsSetting( Vec2 userPosition, int userAngle ){
     
     CCLOG("updateEffectsSetting by position %dx%d   %lu len:%d", int( userPos.x ), int( userPos.y ), this->pos.size(), this->len );
     
+    sndSrcPos.clear();
     userPos.set( userPosition );
     
     for( int i=0; i<this->len; i++ ){
-//        SoundEffect* ae = sounds[i];
-//        ang = userPos.getAngle( pos[i] );
         dis = dmap->getFastDistance( int(userPos.x), int(userPos.y), int(pos[i].x), int(pos[i].y) );
         
         float vol = 1.0f;
         if( dis > 0 ) vol = 1.0f/dis;
 
-        
-        
-        
-//        dis->
         blocks[i]->setDistanceLabel( std::to_string( dis ) );
+        aae->setVol( i, vol );
+        
 //        CCLOG("(%d)의 거리는 %d 이므로, 볼륨을 %f로 설정", i, dis, vol );
 //        this->runAction( ActionTween::create( 0.8f, "vol", aae->getVol(i), vol ) );
-        aae->setVol( i, vol );
 //        CCLOG("(%d)와 유저와의 거리는 %d", i, dis );
+        
+//        std::vector<Vec2> ssp = dmap->getLastSoundSourcePos(<#std::vector<Vec2> route#>)
+        
+        std::vector<Vec2> v;
+        sndSrcPos.push_back( v );
+        sndSrcPos[i] = dmap->lastSoundPos;
     }
     
     updateEffectsSetting( userAngle );
@@ -92,14 +94,20 @@ void SoundEffectMng::updateEffectsSetting( Vec2 userPosition, int userAngle ){
 void SoundEffectMng::updateEffectsSetting( int userAng ){
     
 //        CCLOG("updateEffectsSetting by angle %d   %lu  len:%d", userAng, this->pos.size(), this->len );
-    
-    
     float ang;
     float pan = 0;
     for( int i=0; i<this->len; i++ ){
         
         
-        ang =  atan2( pos[i].y - userPos.y, pos[i].x - userPos.x ) * 180 / 3.14159265 + userAng;
+        
+        std::vector<Vec2> ssp = sndSrcPos[i];
+        for( int j=0; j<ssp.size(); j++ ){
+            CCLOG("(%d)번 사운드사이의 코너는 %dx%d", i, int(ssp[j].x), int(ssp[j].y) );
+        }
+        
+
+        if( ssp.size() > 0 ) ang = atan2( ssp[0].y - userPos.y, ssp[0].x - userPos.x ) * 180 / 3.14159265 + userAng;
+        else                 ang = atan2( pos[i].y - userPos.y, pos[i].x - userPos.x ) * 180 / 3.14159265 + userAng;
         
         if( ang < -180 ) ang += 360;
         else if( ang >= 360 ) ang -= 360;
@@ -111,7 +119,7 @@ void SoundEffectMng::updateEffectsSetting( int userAng ){
         
         
         blocks[i]->setPanLabel( std::to_string( int(pan) ) );
-        CCLOG( "(%d)의 유저와의 각도%dx%d ~ %dx%d 는 %f => pan:%f", i, int(userPos.x), int(userPos.y), int(pos[i].x), int(pos[i].y), ang, pan );
+//        CCLOG( "(%d)의 유저와의 각도%dx%d ~ %dx%d 는 %f => pan:%f", i, int(userPos.x), int(userPos.y), int(pos[i].x), int(pos[i].y), ang, pan );
         
 //        CCLOG("runAction %f에서 %f까지 0.8초동안 이동", aae->getPan(i), pan );
         
