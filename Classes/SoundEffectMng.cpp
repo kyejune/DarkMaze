@@ -43,6 +43,8 @@ void SoundEffectMng::setEffectsInfomation( TMXObjectGroup* sound, DebugMap* map,
         
         aae->addSound( path, ss[1] );
         
+        hasReverb.push_back( 0 );
+        
         //
         SoundBlock* sb = SoundBlock::create();
         sb->setLabel( ssrc );
@@ -85,6 +87,12 @@ void SoundEffectMng::updateEffectsSetting( Vec2 userPosition, int userAngle ){
         std::vector<Vec2> v;
         sndSrcPos.push_back( v );
         sndSrcPos[i] = dmap->lastSoundPos;
+        
+        bool prevHas = (hasReverb[i]!=0);
+        bool has = (dmap->hasLastRouteClosedDoor);
+        
+        if( has != prevHas ) aae->reverbTo( i, has );
+        hasReverb[i] = has;
     }
     
     updateEffectsSetting( userAngle );
@@ -102,7 +110,7 @@ void SoundEffectMng::updateEffectsSetting( int userAng ){
         
         std::vector<Vec2> ssp = sndSrcPos[i];
         for( int j=0; j<ssp.size(); j++ ){
-            CCLOG("(%d)번 사운드사이의 코너는 %dx%d", i, int(ssp[j].x), int(ssp[j].y) );
+            CCLOG("(%d)번 사운드사이의 갈림길은 %dx%d", i, int(ssp[j].x), int(ssp[j].y) );
         }
         
 
@@ -119,16 +127,11 @@ void SoundEffectMng::updateEffectsSetting( int userAng ){
         
         
         blocks[i]->setPanLabel( std::to_string( int(pan) ) );
-//        CCLOG( "(%d)의 유저와의 각도%dx%d ~ %dx%d 는 %f => pan:%f", i, int(userPos.x), int(userPos.y), int(pos[i].x), int(pos[i].y), ang, pan );
-        
-//        CCLOG("runAction %f에서 %f까지 0.8초동안 이동", aae->getPan(i), pan );
         
         std::string pstr = "pan:";
         pstr.append( std::to_string(i) );
         
         this->runAction( ActionTween::create( 0.8f, pstr, aae->getPan(i), pan ) );
-        
-//        aae->setPan( i, pan );
     }
 }
 

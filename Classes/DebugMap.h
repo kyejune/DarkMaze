@@ -27,12 +27,16 @@ public:
     
     void parseMap( cocos2d::TMXTiledMap* tmap );
     D::Load checkLoad( Vec2 start, Vec2 target );
+    D::Load checkDoor( Vec2 start, Vec2 target );
+    bool checkHasClosedDoor( std::vector<Vec2> route );
+    
     int getFastDistance( int startCoordX, int startCoordY, int endCoordX, int endCoordY );
     
     Size tilesLen;
     Size tilesSize;
     
     std::vector<Vec2> lastSoundPos;
+    bool hasLastRouteClosedDoor;
     
 //    Vec2 posToCoord( Vec2 position );
 //    Vec2 posToCoord( int x, int y );
@@ -43,6 +47,7 @@ private:
     Vec2 goal;// = Vec2(0,0);
     Vec2 start;// = Vec2(0,0);
     std::vector< std::vector<Vec2>> wallSeg;
+    std::vector< std::vector<Vec2>> doorSeg;
     std::unordered_map< int, int > parentMap = {};
     std::vector<Vec2> closedCoords;
     

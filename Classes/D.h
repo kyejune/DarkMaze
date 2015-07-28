@@ -45,7 +45,8 @@ namespace D {
     {
         PASS,
         BLOCKED,
-        CLOSED_DOOR
+        CLOSED_DOOR,
+        OUTLINE
     };
 }
 

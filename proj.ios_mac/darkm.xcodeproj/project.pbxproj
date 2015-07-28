@@ -64,7 +64,7 @@
 		CE80374D1B4D21AB007C94F5 /* D.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE80373D1B4D21AB007C94F5 /* D.cpp */; };
 		CE80374E1B4D21AB007C94F5 /* DebugMap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE80373F1B4D21AB007C94F5 /* DebugMap.cpp */; };
 		CE80374F1B4D21AB007C94F5 /* HelloWorldScene.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE8037411B4D21AB007C94F5 /* HelloWorldScene.cpp */; };
-		CE8037501B4D21AB007C94F5 /* MainScene.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE8037431B4D21AB007C94F5 /* MainScene.cpp */; };
+		CE8037501B4D21AB007C94F5 /* GameScene.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE8037431B4D21AB007C94F5 /* GameScene.cpp */; };
 		CE8037521B4D21AB007C94F5 /* SoundEffectMng.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE8037471B4D21AB007C94F5 /* SoundEffectMng.cpp */; };
 		CE8037531B4D21AB007C94F5 /* UserDot.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE8037491B4D21AB007C94F5 /* UserDot.cpp */; };
 		CE8037561B4D2241007C94F5 /* darkmaze.tmx in Resources */ = {isa = PBXBuildFile; fileRef = CE8037541B4D2241007C94F5 /* darkmaze.tmx */; };
@@ -74,6 +74,8 @@
 		CEE6C3391B4E1AD0006B2B6E /* 1.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = CEE6C3361B4E1AD0006B2B6E /* 1.mp3 */; };
 		CEE6C33A1B4E1AD0006B2B6E /* 2.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = CEE6C3371B4E1AD0006B2B6E /* 2.mp3 */; };
 		CEE6C33B1B4E1AD0006B2B6E /* 3.m4a in Resources */ = {isa = PBXBuildFile; fileRef = CEE6C3381B4E1AD0006B2B6E /* 3.m4a */; };
+		CEE97A741B60B89B00C0FC0E /* CoreMotion.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CEE97A731B60B89B00C0FC0E /* CoreMotion.framework */; };
+		CEE97A771B60C1E300C0FC0E /* DeviceSensorWrapper.mm in Sources */ = {isa = PBXBuildFile; fileRef = CEE97A751B60C1E300C0FC0E /* DeviceSensorWrapper.mm */; };
 		CEEACB011B5893D900141C18 /* SoundBlock.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CEEACAFF1B5893D900141C18 /* SoundBlock.cpp */; };
 		D44C620C132DFF330009C878 /* OpenAL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D44C620B132DFF330009C878 /* OpenAL.framework */; };
 		D44C620E132DFF430009C878 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D44C620D132DFF430009C878 /* AVFoundation.framework */; };
@@ -187,8 +189,8 @@
 		CE8037401B4D21AB007C94F5 /* DebugMap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DebugMap.h; sourceTree = "<group>"; };
 		CE8037411B4D21AB007C94F5 /* HelloWorldScene.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HelloWorldScene.cpp; sourceTree = "<group>"; };
 		CE8037421B4D21AB007C94F5 /* HelloWorldScene.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HelloWorldScene.h; sourceTree = "<group>"; };
-		CE8037431B4D21AB007C94F5 /* MainScene.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MainScene.cpp; sourceTree = "<group>"; };
-		CE8037441B4D21AB007C94F5 /* MainScene.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MainScene.h; sourceTree = "<group>"; };
+		CE8037431B4D21AB007C94F5 /* GameScene.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GameScene.cpp; sourceTree = "<group>"; };
+		CE8037441B4D21AB007C94F5 /* GameScene.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GameScene.h; sourceTree = "<group>"; };
 		CE8037471B4D21AB007C94F5 /* SoundEffectMng.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SoundEffectMng.cpp; sourceTree = "<group>"; };
 		CE8037481B4D21AB007C94F5 /* SoundEffectMng.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SoundEffectMng.h; sourceTree = "<group>"; };
 		CE8037491B4D21AB007C94F5 /* UserDot.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = UserDot.cpp; sourceTree = "<group>"; };
@@ -200,6 +202,9 @@
 		CEE6C3361B4E1AD0006B2B6E /* 1.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = 1.mp3; sourceTree = "<group>"; };
 		CEE6C3371B4E1AD0006B2B6E /* 2.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = 2.mp3; sourceTree = "<group>"; };
 		CEE6C3381B4E1AD0006B2B6E /* 3.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = 3.m4a; sourceTree = "<group>"; };
+		CEE97A731B60B89B00C0FC0E /* CoreMotion.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMotion.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS8.4.sdk/System/Library/Frameworks/CoreMotion.framework; sourceTree = DEVELOPER_DIR; };
+		CEE97A751B60C1E300C0FC0E /* DeviceSensorWrapper.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = DeviceSensorWrapper.mm; sourceTree = "<group>"; };
+		CEE97A761B60C1E300C0FC0E /* DeviceSensorWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DeviceSensorWrapper.h; sourceTree = "<group>"; };
 		CEEACAFF1B5893D900141C18 /* SoundBlock.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SoundBlock.cpp; sourceTree = "<group>"; };
 		CEEACB001B5893D900141C18 /* SoundBlock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SoundBlock.h; sourceTree = "<group>"; };
 		D44C620B132DFF330009C878 /* OpenAL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenAL.framework; path = System/Library/Frameworks/OpenAL.framework; sourceTree = SDKROOT; };
@@ -213,6 +218,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CEE97A741B60B89B00C0FC0E /* CoreMotion.framework in Frameworks */,
 				CEE4828F1B4D1B7A0085D602 /* Accelerate.framework in Frameworks */,
 				CEE4828D1B4D1B5B0085D602 /* libTheAmazingAudioEngine.a in Frameworks */,
 				52B47A471A53D09C004E4C60 /* Security.framework in Frameworks */,
@@ -302,6 +308,7 @@
 		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				CEE97A731B60B89B00C0FC0E /* CoreMotion.framework */,
 				CEE4828E1B4D1B7A0085D602 /* Accelerate.framework */,
 				8262943D1AAF051F00CB7CF7 /* Security.framework */,
 				52B47A461A53D09B004E4C60 /* Security.framework */,
@@ -347,6 +354,8 @@
 			children = (
 				CE8037391B4D21AB007C94F5 /* AAEWrapper.h */,
 				CE80373A1B4D21AB007C94F5 /* AAEWrapper.mm */,
+				CEE97A751B60C1E300C0FC0E /* DeviceSensorWrapper.mm */,
+				CEE97A761B60C1E300C0FC0E /* DeviceSensorWrapper.h */,
 				CE80373B1B4D21AB007C94F5 /* AppDelegate.cpp */,
 				CE80373C1B4D21AB007C94F5 /* AppDelegate.h */,
 				CE80373D1B4D21AB007C94F5 /* D.cpp */,
@@ -355,8 +364,8 @@
 				CE8037401B4D21AB007C94F5 /* DebugMap.h */,
 				CE8037411B4D21AB007C94F5 /* HelloWorldScene.cpp */,
 				CE8037421B4D21AB007C94F5 /* HelloWorldScene.h */,
-				CE8037431B4D21AB007C94F5 /* MainScene.cpp */,
-				CE8037441B4D21AB007C94F5 /* MainScene.h */,
+				CE8037431B4D21AB007C94F5 /* GameScene.cpp */,
+				CE8037441B4D21AB007C94F5 /* GameScene.h */,
 				CE8037471B4D21AB007C94F5 /* SoundEffectMng.cpp */,
 				CE8037481B4D21AB007C94F5 /* SoundEffectMng.h */,
 				CE8037491B4D21AB007C94F5 /* UserDot.cpp */,
@@ -591,11 +600,12 @@
 				CE8037531B4D21AB007C94F5 /* UserDot.cpp in Sources */,
 				CE8037521B4D21AB007C94F5 /* SoundEffectMng.cpp in Sources */,
 				503AE10017EB989F00D1A890 /* AppController.mm in Sources */,
-				CE8037501B4D21AB007C94F5 /* MainScene.cpp in Sources */,
+				CE8037501B4D21AB007C94F5 /* GameScene.cpp in Sources */,
 				CE80374E1B4D21AB007C94F5 /* DebugMap.cpp in Sources */,
 				CE80374C1B4D21AB007C94F5 /* AppDelegate.cpp in Sources */,
 				503AE10217EB989F00D1A890 /* RootViewController.mm in Sources */,
 				CE80374D1B4D21AB007C94F5 /* D.cpp in Sources */,
+				CEE97A771B60C1E300C0FC0E /* DeviceSensorWrapper.mm in Sources */,
 				CE80374B1B4D21AB007C94F5 /* AAEWrapper.mm in Sources */,
 				503AE10117EB989F00D1A890 /* main.m in Sources */,
 			);

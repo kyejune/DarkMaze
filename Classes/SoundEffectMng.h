@@ -43,6 +43,8 @@ private:
     
     std::vector<std::vector<Vec2>> sndSrcPos;
     
+    std::vector<int> hasReverb;
+    
     Vec2 userPos;
     
     int len = 0;

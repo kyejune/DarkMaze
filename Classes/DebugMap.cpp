@@ -24,6 +24,7 @@ bool DebugMap::init()
 void DebugMap::parseMap( cocos2d::TMXTiledMap* tmap  ){
     
     TMXObjectGroup* wall = tmap->getObjectGroup("linewall");
+    TMXObjectGroup* door = tmap->getObjectGroup("door");
     
     Size mapSize  = tmap->getContentSize();
     tilesLen = tmap->getMapSize();
@@ -41,6 +42,9 @@ void DebugMap::parseMap( cocos2d::TMXTiledMap* tmap  ){
     
     DrawNode* wallNode = DrawNode::create();
     this->addChild( wallNode );
+    
+    DrawNode* doorNode = DrawNode::create();
+    this->addChild( doorNode );
     
     int lineCount = 0;
     for( auto obj : wall->getObjects())
@@ -79,6 +83,43 @@ void DebugMap::parseMap( cocos2d::TMXTiledMap* tmap  ){
             
         }//for
     }
+    
+    int doorLineCount = 0;
+    // 문 그리기
+    for( auto obj: door->getObjects())
+    {
+        bool first = true;
+        Vec2 prevPoint;
+        
+        auto xx = obj.asValueMap()["x"].asFloat();
+        auto yy = obj.asValueMap()["y"].asFloat();
+        
+        // 벽 생성 및 위치
+        for( auto value : obj.asValueMap() )
+        {
+            if( value.first == "polylinePoints"){
+                doorSeg.push_back( *new std::vector<Vec2> );
+                auto vec = value.second.asValueVector();
+                
+                first = true;
+                for( auto &p : vec ){
+                    Vec2 point = Vec2( ( p.asValueMap().at("x").asFloat()*.5 ) + xx, -( p.asValueMap().at("y").asFloat()*.5 ) + yy );
+                    
+                    if( first == false ){
+                        doorNode->drawSegment( prevPoint, point, 3.0f, Color4F::RED );
+                    }
+                    
+                    doorSeg[doorLineCount].push_back(point);
+                    prevPoint = point;
+                    first = false;
+                }//for
+                
+                //                CCLOG( "(%d) line length is %lu", lineCount, wallSeg[lineCount].size());
+                doorLineCount += 1;
+            }//if
+            
+        }//for
+    }
 }
 
 D::Load DebugMap::checkLoad( Vec2 begin, Vec2 target ){
@@ -94,19 +135,49 @@ D::Load DebugMap::checkLoad( Vec2 begin, Vec2 target ){
         for( int j=0; j<wallSeg[i].size()-1; j++ ){
             Vec2 SegS = wallSeg[i][j];
             Vec2 SegE = wallSeg[i][j+1];
-            bool blocked = Vec2::isSegmentIntersect( loadBegin, loadEnd, SegS, SegE );
-            if( blocked ) return D::Load::BLOCKED;
+            if( Vec2::isSegmentIntersect( loadBegin, loadEnd, SegS, SegE ) ) return D::Load::BLOCKED;
         }
     }
     
     return D::Load::PASS;
 }
 
+bool DebugMap::checkHasClosedDoor( std::vector<Vec2> route ){
+    for( int i=1; i<route.size(); i++ ){
+        if( checkDoor( route[i-1], route[i]) == D::Load::CLOSED_DOOR ) return true;
+    }
+    
+    return false;
+}
+
+D::Load DebugMap::checkDoor( Vec2 begin, Vec2 target ){
+    if( target.x < 0 || target.y < 0 || target.x > tilesLen.width || target.y > tilesLen.height ) return D::Load::OUTLINE;
+    
+    Vec2 loadBegin = Vec2( begin.x*tilesSize.width + tilesSize.width/2, begin.y*tilesSize.height + tilesSize.height/2 );
+    Vec2 loadEnd   = Vec2( target.x*tilesSize.width + tilesSize.width/2, target.y*tilesSize.height + tilesSize.height/2 );
+    
+    
+    long doorLen = doorSeg.size();
+    for( int i=0; i<doorLen; i++ ){
+        for( int j=0; j<doorSeg[i].size()-1; j++ ){
+            Vec2 SegS = doorSeg[i][j];
+            Vec2 SegE = doorSeg[i][j+1];
+            if( Vec2::isSegmentIntersect( loadBegin, loadEnd, SegS, SegE ) ) return D::Load::CLOSED_DOOR;
+        }
+    }
+    
+    return D::Load::PASS;
+}
+
+
+
 int DebugMap::getFastDistance( int startCoordX, int startCoordY, int endCoordX, int endCoordY ){
     CCLOG("<<<<<<<<<<<< getFastDistance %dx%d ~ %dx%d", startCoordX, startCoordY, endCoordX, endCoordY );
     std::vector<Vec2> route;
     start.setPoint( startCoordX, startCoordY );
     goal.setPoint( endCoordX, endCoordY );
+    
+    hasLastRouteClosedDoor = false;
     
     // 클리어
     closedCoords.clear();
@@ -132,7 +203,7 @@ int DebugMap::getFastDistance( int startCoordX, int startCoordY, int endCoordX, 
         if( nextStart.equals( goal )){
             route.push_back( goal );
             getLastSoundSourcePos( route );
-            
+            hasLastRouteClosedDoor = ( checkDoor(nextStart, goal) == D::Load::CLOSED_DOOR );
             return 1;
         }
         
@@ -148,9 +219,8 @@ int DebugMap::getFastDistance( int startCoordX, int startCoordY, int endCoordX, 
                 
                 route.push_back( goal );
                 getLastSoundSourcePos( route );
+                hasLastRouteClosedDoor = checkHasClosedDoor( route );
             }
-//            CCLOG("(%d)번 길로 출발하면 %d걸림", i, dis );
-//            minDistance = MIN( minDistance, dis );
         }
         
         closedCoords.clear();
@@ -184,6 +254,7 @@ void DebugMap::getLastSoundSourcePos( std::vector<Vec2> route ){
             if( std::abs(ang) != 90 && std::abs(ang) != 180 && ang != 0 ) r.push_back( route[i] );
         }
     }
+    
     
     lastSoundPos = r;
 }

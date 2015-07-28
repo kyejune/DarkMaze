@@ -6,20 +6,19 @@
 #include "D.h"
 #include "DebugMap.h"
 #include "SoundEffectMng.h"
+//#include "DeviceSensorWrapper.h"
 
-
-class MainScene : public cocos2d::Scene
+class GameScene : public cocos2d::Scene
 {
     
 public:
     
     virtual bool init();
-    CREATE_FUNC(MainScene);
+    CREATE_FUNC(GameScene);
     
     void OnAcceleration( cocos2d::Acceleration *acc, cocos2d::Event *event );
-//    void onClosedAlert( EventCustom* evt );
     int parseMap( std::string fileName );
-    int getApproximateDegree( int degree );
+//    int getApproximateDegree( int degree );
     
     
     bool onTouchBegan(Touch *touch, Event *event);
@@ -28,7 +27,7 @@ public:
     void onTouchCancelled(Touch *touch, Event *event);
     
     bool isTouchDown;
-    bool isMoving;
+//    bool isMoving;
     
     cocos2d::Size visibleSize;
     
@@ -64,21 +63,31 @@ private:
     Vec2 nextPos;
     float nextRot = 0;
     
-    double accX;
-    double accY;
+//    double accX;
+//    double accY;
     
     void getNewPosition( double ax, double ay );
     void fixUserAtCenter();
     
     
-
     
     TMXTiledMap* tmapBg;
     Layer* gameLayer;
     DebugMap* dmap;
     SoundEffectMng* sMng;
+//    DeviceSensorWrapper* dsw;
+    
+//    bool isTilting = false;
+    std::vector<float> prevAccXXX;
+    std::vector<float> prevAccYYY;
+    float averageX = 0.0f;
+    float averageY = 0.0f;
+    
+    
+    void readyTilt();
     
     UserDot* ud;
+    DrawNode* sightStencil;
     
     Vec2 rotatePoint( Vec2 anchor, Vec2 point, float angle );
     

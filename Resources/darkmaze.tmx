@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" renderorder="right-down" width="10" height="16" tilewidth="46" tileheight="46" nextobjectid="130">
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="10" height="16" tilewidth="46" tileheight="46" nextobjectid="132">
  <tileset firstgid="1" name="tmw_desert_spacing" tilewidth="32" tileheight="32" spacing="1" margin="1">
   <image source="tmw_desert_spacing.png" width="265" height="199"/>
  </tileset>
@@ -25,13 +25,13 @@
  <objectgroup name="sound">
   <object id="115" x="380" y="684" width="20" height="20">
    <properties>
-    <property name="source" value="1.mp3"/>
+    <property name="source" value="2.mp3"/>
    </properties>
    <ellipse/>
   </object>
   <object id="116" x="335" y="132" width="20" height="20">
    <properties>
-    <property name="source" value="2.mp3"/>
+    <property name="source" value="1.mp3"/>
    </properties>
    <ellipse/>
   </object>
@@ -40,6 +40,14 @@
     <property name="source" value="3.m4a"/>
    </properties>
    <ellipse/>
+  </object>
+ </objectgroup>
+ <objectgroup name="door">
+  <object id="130" x="370" y="511">
+   <polyline points="0,0 0,41"/>
+  </object>
+  <object id="131" x="370" y="90">
+   <polyline points="0,0 46,1"/>
   </object>
  </objectgroup>
 </map>

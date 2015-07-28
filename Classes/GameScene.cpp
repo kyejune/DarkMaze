@@ -1,10 +1,13 @@
-#include "MainScene.h"
+#include "GameScene.h"
+
+//#include <CoreMotion/CoreMotion.h>
+//#import <CoreFoundation/CoreFoundation.h>
 
 
 USING_NS_CC; //== using namespace cocos2d;
 
 // on "init" you need to initialize your instance
-bool MainScene::init()
+bool GameScene::init()
 {
     //////////////////////////////
     // 1. super init first
@@ -48,14 +51,19 @@ bool MainScene::init()
     // touch 관련
     auto swipeListener = EventListenerTouchOneByOne::create();
     swipeListener->setSwallowTouches(true);
-    swipeListener->onTouchBegan = CC_CALLBACK_2(MainScene::onTouchBegan, this);
-    swipeListener->onTouchMoved = CC_CALLBACK_2(MainScene::onTouchMoved, this);
-    swipeListener->onTouchEnded = CC_CALLBACK_2(MainScene::onTouchEnded, this);
-    swipeListener->onTouchCancelled = CC_CALLBACK_2(MainScene::onTouchCancelled, this);
+    swipeListener->onTouchBegan = CC_CALLBACK_2(GameScene::onTouchBegan, this);
+    swipeListener->onTouchMoved = CC_CALLBACK_2(GameScene::onTouchMoved, this);
+    swipeListener->onTouchEnded = CC_CALLBACK_2(GameScene::onTouchEnded, this);
+    swipeListener->onTouchCancelled = CC_CALLBACK_2(GameScene::onTouchCancelled, this);
     _eventDispatcher->addEventListenerWithSceneGraphPriority( swipeListener, this );
-   
     
-    this->addChild( gameLayer );
+    
+    // 기울기 관련
+    Device::setAccelerometerEnabled( true );
+    auto accListener = EventListenerAcceleration::create( CC_CALLBACK_2( GameScene::OnAcceleration, this ));
+    Director::getInstance()->getEventDispatcher()->addEventListenerWithSceneGraphPriority(accListener, this );
+    
+//    this->addChild( gameLayer );
     gameLayer->addChild( tmapBg, 0 );
     gameLayer->addChild( ud, 1 );
     gameLayer->setContentSize( Size( D::mapSize.width, D::mapSize.height ) );
@@ -72,16 +80,66 @@ bool MainScene::init()
     fixUserAtCenter();
     this->scheduleUpdate();
     
-    isMoving = false;
+//    isMoving = false;
+    
+    
+    // 마스크 테스트
+    sightStencil = DrawNode::create();
+    sightStencil->drawSolidCircle(Vec2(0,0), 100, 0, 50, 1, 1, Color4F::WHITE );
+    
+    
+    ClippingNode *cn = ClippingNode::create( sightStencil );
+    cn->addChild( gameLayer );
+    cn->setInverted( false );
+    this->addChild( cn );
+    sightStencil->setPosition( visibleSize*.5 );
+    
     
     return true;
 }
 
 
+// --------------------- AccelerationEvent
+
+void GameScene::OnAcceleration( cocos2d::Acceleration *acc, cocos2d::Event *event){
+//    if( ud->isRunning()  ) CCLOG("OnAcceleration 기다려" );
+//    else                   CCLOG("OnAcceleration 진행");
+    
+    if( ud->getNumberOfRunningActions() > 0 ) return;
+    
+    float accX = round(acc->x*100);
+    float accY = round(acc->y*100);
+    
+    if( prevAccXXX.size() >= 100 ){
+        // 평균값이랑 비교해서 너무 튀면 알려주기
+        float tiltX = std::abs( averageX - accX );
+        float tiltY = std::abs( averageY - accY );
+        
+        if( tiltX > tiltY && tiltX > 40 )
+        {
+            if( accX > 0 ) setLineOfSight( D::LEFT );
+            else           setLineOfSight(D::RIGHT);
+        }
+        else if( tiltY > tiltX && tiltY > 40 )
+        {
+            if( accY > 0 ) setCoordByDirection(D::TOP);
+            else           setCoordByDirection(D::BOTTOM);
+        }
+        
+        prevAccXXX.erase( prevAccXXX.begin() );
+        prevAccYYY.erase( prevAccYYY.begin() );
+    }
+    
+    prevAccXXX.push_back( accX );
+    prevAccYYY.push_back( accY );
+    
+    averageX = std::accumulate(prevAccXXX.begin(), prevAccXXX.end(), 0.0)/prevAccXXX.size();
+    averageY = std::accumulate(prevAccYYY.begin(), prevAccYYY.end(), 0.0)/prevAccYYY.size();
+}
 
 // --------------------- TouchEvent
 
-bool MainScene::onTouchBegan(Touch *touch, Event *event)
+bool GameScene::onTouchBegan(Touch *touch, Event *event)
 {
     initialTouchPos[0] = touch->getLocation().x;
     initialTouchPos[1] = touch->getLocation().y;
@@ -92,51 +150,31 @@ bool MainScene::onTouchBegan(Touch *touch, Event *event)
     
     // Get the touch point
     Vec2 touchLocation = this->convertTouchToNodeSpace(touch);
-    CCLOG("Touch: %f %f", touchLocation.x, touchLocation.y);
-    
-    
-//    dmap->getColorMap();
-    
     return true;
 }
 
-void MainScene::onTouchMoved(Touch *touch, Event *event)
+void GameScene::onTouchMoved(Touch *touch, Event *event)
 {
     currentTouchPos[0] = touch->getLocation().x;
     currentTouchPos[1] = touch->getLocation().y;
-    
-    //    CCLOG("onTouchMoved");
 }
 
-void MainScene::onTouchEnded(Touch *touch, Event *event)
+void GameScene::onTouchEnded(Touch *touch, Event *event)
 {
     isTouchDown = false;
-    
-    //    CCLOG("onTouchEnd");
 }
 
-void MainScene::onTouchCancelled(Touch *touch, Event *event)
+void GameScene::onTouchCancelled(Touch *touch, Event *event)
 {
     onTouchEnded(touch, event);
-    
-    //    CCLOG("onTouchCancelled");
 }
 
-void MainScene::update(float dt)
+void GameScene::update(float dt)
 {
-    
-//        CCLOG("update %s", isTouchDown?"o":"x" );
-    
-    
     if (true == isTouchDown)
     {
         int offsetX = std::abs( initialTouchPos[0] - currentTouchPos[0] );
         int offsetY = std::abs( initialTouchPos[1] - currentTouchPos[1] );
-        
-        
-        
-        //       MathUtil.roundf( offsetX );
-        //        MathUtil.abs(MathUtil.roundf(offsetY) );
         
         if(  offsetX > offsetY ){
             if (initialTouchPos[0] - currentTouchPos[0] > visibleSize.width * 0.05)
@@ -171,16 +209,20 @@ void MainScene::update(float dt)
         }
     }
     
-//    if( ud->getNumberOfRunningActions() > 0 || gameLayer->getNumberOfRunningActions() >  0 ){
-        fixUserAtCenter();
-//    }
-    
-//    CCLOG( "???????????? %d", ud->numberOfRunningActions() );
+    fixUserAtCenter();
 }
 
 
-void MainScene::setLineOfSight( D::Direction direction ){
-    if( isMoving ) return;
+void GameScene::setLineOfSight( D::Direction direction ){
+    
+    CCLOG("setLineOfSight: %lu", ud->getNumberOfRunningActions());
+    
+    
+//    if( ud->isRunning()  ) CCLOG("setLineOfSight 기다려" );
+//    else                   CCLOG("setLineOfSight 진행");
+    
+    
+    if( ud->getNumberOfRunningActions() > 0 ) return;
     
     switch ( direction ) {
         case D::RIGHT:
@@ -195,18 +237,30 @@ void MainScene::setLineOfSight( D::Direction direction ){
             break;
     }
     
+    ud->stopAllActions();
     gameLayer->runAction(RotateTo::create( 0.5, nextRot ) );
-//    ud->runAction(RotateTo::create( 0.5, -nextRot ));
     ud->runAction( Sequence::create( RotateTo::create( 0.5, -nextRot ),
-                                     CallFunc::create( CC_CALLBACK_0( MainScene::doneMoving, this )), NULL ));
+                                     CallFunc::create( CC_CALLBACK_0( GameScene::doneMoving, this )), NULL ));
     
     
     sMng->updateEffectsSetting( -nextRot );
-    isMoving = true;
+//    isMoving = true;
 }
 
-void MainScene::setCoord( Vec2 targetCoord, bool nonAnimation, bool ignoreRule ){
-    if( isMoving ) return;
+void GameScene::setCoord( Vec2 targetCoord, bool nonAnimation, bool ignoreRule ){
+    
+    CCLOG("setCoord: %lu", ud->getNumberOfRunningActions());
+    
+    if( ud->getNumberOfRunningActions() > 0 ) return;
+    
+    
+    
+//    if( ud->isRunning()  ) CCLOG("setCoord 기다려" );
+//    else                   CCLOG("setCoord 진행");
+    
+//    if( isMoving ) return;
+//    isMoving = true;
+    
     CCLOG( "setCoord %f, %f", targetCoord.x, targetCoord.y  );
     
     if( ignoreRule == false ){
@@ -229,24 +283,23 @@ void MainScene::setCoord( Vec2 targetCoord, bool nonAnimation, bool ignoreRule )
    
     currentCord.x = targetCoord.x;
     currentCord.y = targetCoord.y;
-  
+    
+    ud->stopAllActions();
     if( nonAnimation )
     {
         ud->setPosition( nextPos );
     }
     else{
         ud->runAction( Sequence::create( MoveTo::create( 0.5, nextPos ),
-                                        CallFunc::create( CC_CALLBACK_0( MainScene::doneMoving, this )), NULL ));
+                                        CallFunc::create( CC_CALLBACK_0( GameScene::doneMoving, this )), NULL ));
         
     }
     
     sMng->updateEffectsSetting( targetCoord, ud->getRotation() );
-    
-    isMoving = true;
 }
 
 
-void MainScene::fixUserAtCenter(){
+void GameScene::fixUserAtCenter(){
     
     Size size = Director::getInstance()->getWinSize();
     Vec2 center = Vec2( size.width/2, size.height/2 );
@@ -255,12 +308,12 @@ void MainScene::fixUserAtCenter(){
     gameLayer->setPosition( center-offset );
 }
 
-void MainScene::doneMoving(){
-    isMoving = false;
+void GameScene::doneMoving(){
+//    isMoving = false;
 }
 
 
-Vec2 MainScene::rotatePoint( Vec2 anchor, Vec2 point, float angle ){
+Vec2 GameScene::rotatePoint( Vec2 anchor, Vec2 point, float angle ){
     float rad = angle * 0.017453;
     float s = sin(rad);
     float c = cos(rad);
@@ -281,7 +334,7 @@ Vec2 MainScene::rotatePoint( Vec2 anchor, Vec2 point, float angle ){
 }
 
 
-void MainScene::setCoordByDirection( D::Direction direction ){
+void GameScene::setCoordByDirection( D::Direction direction ){
     
     const int d[4] = { 0, 90, 180, -90 };
     int swipeR     = d[direction];
@@ -292,27 +345,23 @@ void MainScene::setCoordByDirection( D::Direction direction ){
     switch ( (containerR-swipeR)%360 ) {
         case 0:
             setCoord( currentCord + Vec2( 0, 1 ));
-//            setCoord( coordinates[0], coordinates[1] + 1 );
             break;
             
             
         case 180:
         case -180:
             setCoord( currentCord - Vec2( 0, 1 ));
-//            setCoord( coordinates[0], coordinates[1] - 1 );
             break;
             
             
         case 90:
         case -270:
             setCoord( currentCord - Vec2( 1, 0 ));
-//            setCoord( coordinates[0] - 1, coordinates[1] );
             break;
             
         case -90:
         case 270:
             setCoord( currentCord + Vec2( 1, 0 ));
-//            setCoord( coordinates[0] + 1, coordinates[1] );
             break;
             
         default:

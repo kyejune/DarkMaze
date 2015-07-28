@@ -146,8 +146,13 @@ float AAEWrapper::getVol( int idx ){
     return [[[AEAudioControllerWrapper CONTROLLER] channels][idx] volume ];
 }
 void AAEWrapper::setVol( int idx, float vol ){
-//    CCLOG("유저 위치에 맞춰서 조절" );
+    CCLOG("유저 위치에 맞춰서 볼륨 조절" );
     [[[AEAudioControllerWrapper CONTROLLER] channels][idx] setVolume:vol];
+//    [[AEAudioControllerWrapper CONTROLLER] channels][idx] addFilter:[AEAudioControllerWrapper ] rever
+//    AEAudioFilePlayer
+//    AEAudioUnitFilter* f = [[AEAudioControllerWrapper GET] reverbFilter];
+    CCLOG("필터 생성");
+    
 }
 
 float AAEWrapper::getPan( int idx ){
@@ -161,12 +166,12 @@ void AAEWrapper::reverbTo( int idx, bool on ){
     CCLOG("%d번 사운드의 reverb를 %s", idx, on?"켬":"끔" );
     if( on )
     {
-        [[[AEAudioControllerWrapper CONTROLLER] channels][idx]
-            addFilter:[[AEAudioControllerWrapper GET] reverbFilter ]];
+        [[AEAudioControllerWrapper CONTROLLER] addFilter:[[AEAudioControllerWrapper GET] reverbFilter]
+                                               toChannel:[[AEAudioControllerWrapper CONTROLLER] channels][idx] ];
     }
     else{
-        [[[AEAudioControllerWrapper CONTROLLER] channels][idx]
-            removeFilter:[[AEAudioControllerWrapper GET] reverbFilter ]];
+        [[AEAudioControllerWrapper CONTROLLER] removeFilter:[[AEAudioControllerWrapper GET] reverbFilter]
+                                               fromChannel:[[AEAudioControllerWrapper CONTROLLER] channels][idx] ];
     }
 }
 
