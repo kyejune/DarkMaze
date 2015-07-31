@@ -6,10 +6,8 @@
 //  Copyright (c) 2015 kyejune. All rights reserved.
 //
 
-//#import <UIKit/UIKit.h>
-//#import "AEAudioFilePlayer.h"
-//#import "AEBlockChannel.h"
-//#import "AEAudioUnitFilter.h"
+#ifndef __AAEWRAPPER_NODE_H__
+#define __AAEWRAPPER_NODE_H__
 
 #include "cocos2d.h"
 USING_NS_CC;
@@ -42,3 +40,6 @@ private:
     
 
 };
+
+
+#endif // __AAEWRAPPER_NODE_H__

@@ -6,8 +6,8 @@
 //
 //
 
-#ifndef __TilemapTest__D__
-#define __TilemapTest__D__
+#ifndef __D__
+#define __D__
 
 #include <stdio.h>
 
@@ -38,7 +38,8 @@ namespace D {
         TOP,
         RIGHT,
         BOTTOM,
-        LEFT
+        LEFT,
+        HOLD
     };
     
     enum Load
@@ -64,4 +65,4 @@ namespace D {
 
 
 
-#endif /* defined(__TilemapTest__D__) */
+#endif // __D__

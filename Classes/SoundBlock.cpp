@@ -16,8 +16,8 @@ bool SoundBlock::init()
     if( DrawNode::init() )
     {
         
-//        this->setAnchorPoint( Vec2::ANCHOR_MIDDLE );
-//        
+        //        this->setAnchorPoint( Vec2::ANCHOR_MIDDLE );
+        //
         
         label = Label::createWithSystemFont("S", "Arial", 6 );
         label->setColor( Color3B::RED );

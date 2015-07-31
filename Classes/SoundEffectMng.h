@@ -6,8 +6,8 @@
 //
 //
 
-#ifndef __darkmaze__SoundEffectMng__
-#define __darkmaze__SoundEffectMng__
+#ifndef __SoundEffectMng__
+#define __SoundEffectMng__
 
 #include <stdio.h>
 #include "AAEWrapper.h"
@@ -52,4 +52,4 @@ private:
 
 };
 
-#endif /* defined(__darkmaze__SoundEffectMng__) */
+#endif // __SoundEffectMng__

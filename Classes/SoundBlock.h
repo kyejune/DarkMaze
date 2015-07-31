@@ -42,4 +42,4 @@ private:
 
 
 
-#endif /* defined(__TilemapTest__SoundBlock__) */
+#endif // __TilemapTest__SoundBlock__

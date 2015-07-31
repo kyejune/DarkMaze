@@ -42,4 +42,4 @@ public:
 
 
 
-#endif /* defined(__TilemapTest__UserDot__) */
+#endif // __TilemapTest__UserDot__

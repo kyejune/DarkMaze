@@ -14,6 +14,7 @@
 #import "AEAudioController.h"
 #import "AEAudioFilePlayer.h"
 #import "AEAudioUnitFilter.h"
+#import <AVFoundation/AVFoundation.h>
 
 
 // 선언 ----------------------------------------------------------------------------------------------------------------------------------------
@@ -67,8 +68,7 @@ static AEAudioControllerWrapper* instance = nil;
 {
 
     self.audioController = [[AEAudioController alloc]
-                            initWithAudioDescription:[AEAudioController interleaved16BitStereoAudioDescription]
-                            inputEnabled:NO];
+                            initWithAudioDescription:[AEAudioController nonInterleaved16BitStereoAudioDescription]];
     
     NSError *error = NULL;
     BOOL result = [_audioController start:&error];
@@ -86,8 +86,16 @@ static AEAudioControllerWrapper* instance = nil;
         // Report error
     }
     
-    AudioUnitSetParameter( _reverbFilter.audioUnit, kReverb2Param_DryWetMix, kAudioUnitScope_Global, 0, 80.f, 0);
+    AudioUnitSetParameter( _reverbFilter.audioUnit, kReverb2Param_DryWetMix, kAudioUnitScope_Output, 0, 80.f, 0);
     
+    
+    self.audioController.audioSessionCategory = AVAudioSessionCategoryAmbient;
+    
+    
+    
+//    UInt32 category = kAudioSessionCategory_MediaPlayback;//kAudioSessionCategory_UserInterfaceSoundEffects;
+//    AudioSessionSetProperty( kAudioSessionProperty_AudioCategory, sizeof(category), &category );
+//    AudioSessionSetActive( false );
     
     //
     if( !result ){

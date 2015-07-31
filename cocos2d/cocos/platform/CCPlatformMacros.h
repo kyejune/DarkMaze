@@ -55,6 +55,8 @@ static __TYPE__* create() \
     } \
 }
 
+
+
 /** @def NODE_FUNC(__TYPE__)
  * Define a node function for a specific type, such as Layer.
  *

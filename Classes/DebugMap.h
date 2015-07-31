@@ -6,8 +6,8 @@
 //
 //
 
-#ifndef __TilemapTest__DebugMap__
-#define __TilemapTest__DebugMap__
+#ifndef __DEBUGMAP__
+#define __DEBUGMAP__
 
 #include <stdio.h>
 #include <unordered_map>
@@ -64,4 +64,4 @@ private:
 };
 
 
-#endif /* defined(__TilemapTest__DebugMap__) */
+#endif // __DEBUGMAP__

@@ -1,20 +1,27 @@
-#ifndef __HELLOWORLD_SCENE_H__
-#define __HELLOWORLD_SCENE_H__
+#ifndef __GAMESCENE_SCENE_H__
+#define __GAMESCENE_SCENE_H__
 
 #include "cocos2d.h"
 #include "UserDot.h"
 #include "D.h"
 #include "DebugMap.h"
 #include "SoundEffectMng.h"
-//#include "DeviceSensorWrapper.h"
 
 class GameScene : public cocos2d::Scene
 {
     
+private:
+    static GameScene *instance;
+    GameScene(){};
+    ~GameScene(){};
+    
 public:
     
+    static GameScene *getInstance();
+    static void releaseInstance();
     virtual bool init();
-    CREATE_FUNC(GameScene);
+    
+//    CREATE_FUNC(GameScene);
     
     void OnAcceleration( cocos2d::Acceleration *acc, cocos2d::Event *event );
     int parseMap( std::string fileName );
@@ -82,6 +89,10 @@ private:
     std::vector<float> prevAccYYY;
     float averageX = 0.0f;
     float averageY = 0.0f;
+    float holdingTiltY = 0.0f;
+    float maxOffsetTiltY = 0.0f;
+    
+    D::Direction lastOrder;
     
     
     void readyTilt();
@@ -96,4 +107,4 @@ private:
 
 
 
-#endif // __HELLOWORLD_SCENE_H__
+#endif // __GAMESCENE_SCENE_H__

@@ -1,10 +1,28 @@
 #include "GameScene.h"
 
-//#include <CoreMotion/CoreMotion.h>
-//#import <CoreFoundation/CoreFoundation.h>
-
-
 USING_NS_CC; //== using namespace cocos2d;
+
+
+
+
+// ~~~~~~~~~~~~~~~~~~~~ Singletone Instance
+GameScene *GameScene::instance = NULL;
+GameScene *GameScene::getInstance()
+{
+    if( instance == NULL ){
+        instance = new GameScene();
+        instance->init();
+    }
+    
+    return instance;
+}
+
+void GameScene::releaseInstance()
+{
+    if( instance ) delete instance;
+}
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 
 // on "init" you need to initialize your instance
 bool GameScene::init()
@@ -102,39 +120,70 @@ bool GameScene::init()
 // --------------------- AccelerationEvent
 
 void GameScene::OnAcceleration( cocos2d::Acceleration *acc, cocos2d::Event *event){
-//    if( ud->isRunning()  ) CCLOG("OnAcceleration 기다려" );
-//    else                   CCLOG("OnAcceleration 진행");
-    
-    if( ud->getNumberOfRunningActions() > 0 ) return;
     
     float accX = round(acc->x*100);
     float accY = round(acc->y*100);
     
-    if( prevAccXXX.size() >= 100 ){
-        // 평균값이랑 비교해서 너무 튀면 알려주기
-        float tiltX = std::abs( averageX - accX );
-        float tiltY = std::abs( averageY - accY );
+    float tiltX = std::abs( averageX - accX );
+    float tiltY = std::abs( averageY - accY );
+    
+//    bool movable = false;
+    
+    // tilting가능할때..
+    if( ud->getNumberOfRunningActions() == 0 ){
         
-        if( tiltX > tiltY && tiltX > 40 )
-        {
-            if( accX > 0 ) setLineOfSight( D::LEFT );
-            else           setLineOfSight(D::RIGHT);
+        if( prevAccXXX.size() >= 100 ){
+         
+            // 평균값이랑 비교해서 너무 튀면 알려주기
+            if( tiltX > tiltY && tiltX > 60 )
+            {
+                if( accX > 0 ) setLineOfSight( D::LEFT );
+                else           setLineOfSight( D::RIGHT);
+            }
+            else if( tiltY > tiltX && tiltY > 30 )
+            {
+                holdingTiltY   = tiltY;
+                maxOffsetTiltY = 0;
+                
+                if( accY > 0 ) setCoordByDirection(D::TOP);
+                else           setCoordByDirection(D::BOTTOM);
+            }else{
+                
+                
+                if( maxOffsetTiltY > 20 ){
+                
+                prevAccXXX.erase( prevAccXXX.begin() );
+                prevAccYYY.erase( prevAccYYY.begin() );
+                
+                
+                prevAccXXX.push_back( accX );
+                prevAccYYY.push_back( accY );
+                
+                averageX = std::accumulate(prevAccXXX.begin(), prevAccXXX.end(), 0.0)/prevAccXXX.size();
+                averageY = std::accumulate(prevAccYYY.begin(), prevAccYYY.end(), 0.0)/prevAccYYY.size();
+                
+                }
+                
+            }
+            
+        }else{
+            
+            
+            prevAccXXX.push_back( accX );
+            prevAccYYY.push_back( accY );
+            
+            averageX = std::accumulate(prevAccXXX.begin(), prevAccXXX.end(), 0.0)/prevAccXXX.size();
+            averageY = std::accumulate(prevAccYYY.begin(), prevAccYYY.end(), 0.0)/prevAccYYY.size();
         }
-        else if( tiltY > tiltX && tiltY > 40 )
-        {
-            if( accY > 0 ) setCoordByDirection(D::TOP);
-            else           setCoordByDirection(D::BOTTOM);
-        }
-        
-        prevAccXXX.erase( prevAccXXX.begin() );
-        prevAccYYY.erase( prevAccYYY.begin() );
     }
-    
-    prevAccXXX.push_back( accX );
-    prevAccYYY.push_back( accY );
-    
-    averageX = std::accumulate(prevAccXXX.begin(), prevAccXXX.end(), 0.0)/prevAccXXX.size();
-    averageY = std::accumulate(prevAccYYY.begin(), prevAccYYY.end(), 0.0)/prevAccYYY.size();
+    // user이동중인상태: 폰기울기가 고정되었는지를 확인해서 고정이면 반복액션, 움직임이 있었으면 초기상태로..
+    else
+    {
+        if( prevAccYYY.size() >= 200 ){
+            maxOffsetTiltY = std::max( maxOffsetTiltY, holdingTiltY - tiltY );
+//            CCLOG("홀딩중에 기울기 offsetY: %f", maxOffsetTiltY );
+        }
+    }
 }
 
 // --------------------- TouchEvent
@@ -216,13 +265,13 @@ void GameScene::update(float dt)
 void GameScene::setLineOfSight( D::Direction direction ){
     
     CCLOG("setLineOfSight: %lu", ud->getNumberOfRunningActions());
-    
-    
 //    if( ud->isRunning()  ) CCLOG("setLineOfSight 기다려" );
 //    else                   CCLOG("setLineOfSight 진행");
     
     
     if( ud->getNumberOfRunningActions() > 0 ) return;
+    
+    lastOrder = direction;
     
     switch ( direction ) {
         case D::RIGHT:
@@ -239,8 +288,10 @@ void GameScene::setLineOfSight( D::Direction direction ){
     
     ud->stopAllActions();
     gameLayer->runAction(RotateTo::create( 0.5, nextRot ) );
-    ud->runAction( Sequence::create( RotateTo::create( 0.5, -nextRot ),
-                                     CallFunc::create( CC_CALLBACK_0( GameScene::doneMoving, this )), NULL ));
+//    ud->runAction( Sequence::create( RotateTo::create( 0.5, -nextRot ),
+//                                     CallFunc::create( CC_CALLBACK_0( GameScene::doneMoving, this )), NULL ));
+    
+    ud->runAction(RotateTo::create( 0.5, -nextRot ));
     
     
     sMng->updateEffectsSetting( -nextRot );
@@ -252,8 +303,6 @@ void GameScene::setCoord( Vec2 targetCoord, bool nonAnimation, bool ignoreRule )
     CCLOG("setCoord: %lu", ud->getNumberOfRunningActions());
     
     if( ud->getNumberOfRunningActions() > 0 ) return;
-    
-    
     
 //    if( ud->isRunning()  ) CCLOG("setCoord 기다려" );
 //    else                   CCLOG("setCoord 진행");
@@ -290,8 +339,9 @@ void GameScene::setCoord( Vec2 targetCoord, bool nonAnimation, bool ignoreRule )
         ud->setPosition( nextPos );
     }
     else{
-        ud->runAction( Sequence::create( MoveTo::create( 0.5, nextPos ),
-                                        CallFunc::create( CC_CALLBACK_0( GameScene::doneMoving, this )), NULL ));
+        ud->runAction( MoveTo::create( 0.5, nextPos ));
+//        ud->runAction( Sequence::create( MoveTo::create( 0.8, nextPos ),
+//                                        CallFunc::create( CC_CALLBACK_0( GameScene::doneMoving, this )), NULL ));
         
     }
     
@@ -308,9 +358,9 @@ void GameScene::fixUserAtCenter(){
     gameLayer->setPosition( center-offset );
 }
 
-void GameScene::doneMoving(){
-//    isMoving = false;
-}
+//void GameScene::doneMoving(){
+////    isMoving = false;
+//}
 
 
 Vec2 GameScene::rotatePoint( Vec2 anchor, Vec2 point, float angle ){
@@ -339,6 +389,8 @@ void GameScene::setCoordByDirection( D::Direction direction ){
     const int d[4] = { 0, 90, 180, -90 };
     int swipeR     = d[direction];
     int containerR = std::floor( gameLayer->getRotation() + 0.5 );
+    
+    lastOrder = direction;
     
     CCLOG( "%u >>>>>>> %d, - %d, = %d", direction, containerR, swipeR, containerR-swipeR );
     
